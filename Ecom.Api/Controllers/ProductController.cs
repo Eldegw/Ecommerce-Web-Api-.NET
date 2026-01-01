@@ -4,6 +4,7 @@ using Ecom.Core.Dto;
 using Ecom.Core.Entities.Product;
 using Ecom.Core.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using System.Runtime.InteropServices;
 
@@ -99,7 +100,26 @@ namespace Ecom.Api.Controllers
             }
         }
 
+        [HttpDelete("delete-product/{id}")]
+        public async Task<IActionResult> Delete(int id)
+        {
+            try
+            {
 
+              var product = await work.ProductRepository.
+                  GetByIdAsync(id , x => x.Category , XmlConfigurationExtensions=>XmlConfigurationExtensions.Photos);
+
+                await work.ProductRepository.DeleteAsync(product);
+
+                return Ok(new ResponseApi(200));
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new ResponseApi(400, ex.Message));
+             
+            }
+
+        }
 
 
 

@@ -49,12 +49,7 @@ namespace Ecom.Infrastructure.Repositries
 
         }
 
-
-
-
-
-
-
+      
 
         public async Task<bool> UpdateAsync(UpdateProductDto updateProductDto)
         {
@@ -99,6 +94,30 @@ namespace Ecom.Infrastructure.Repositries
 
             return true;
         }
+
+
+
+
+        public async Task DeleteAsync(Product product)
+        {
+          var photo = await context.Photos.Where(x=>x.ProductId == product.Id).ToListAsync(); 
+            foreach (var item in photo)
+            {
+              imageManagementSerives.DeleteImageAsync( item.ImageName ,product.Name );
+            }
+
+            context.Products.Remove(product);
+            await context.SaveChangesAsync();   
+
+
+        }
+
+
+
+
+
+
+
 
     }
 }
