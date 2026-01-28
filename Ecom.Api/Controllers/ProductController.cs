@@ -3,6 +3,7 @@ using Ecom.Api.Helper;
 using Ecom.Core.Dto;
 using Ecom.Core.Entities.Product;
 using Ecom.Core.Interfaces;
+using Ecom.Core.Sharing;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
@@ -19,20 +20,15 @@ namespace Ecom.Api.Controllers
 
 
         [HttpGet("get-all")]
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery]ProductParams parameters )
         {
             try
             {
                var product =  await work.ProductRepository
-                    .GetAllAsync(x=>x.Category , x=>x.Photos);
-                var result = mapper.Map<List<ProductDto>>(product);
+                    .GetAllAsync(parameters);
 
-                if (product == null)
-                {
-                    return BadRequest(new ResponseApi(400, "Item had been add"));
-
-                }
-                return Ok(result);
+                var totalCount = await work.ProductRepository.CountAsync();
+                return Ok(new Pagination<ProductDto>(parameters.pageSize, parameters.pageNumber, totalCount, product)); 
             }
             catch (Exception ex)
             {

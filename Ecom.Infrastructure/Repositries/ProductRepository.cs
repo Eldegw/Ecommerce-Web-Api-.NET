@@ -3,6 +3,7 @@ using Ecom.Core.Dto;
 using Ecom.Core.Entities.Product;
 using Ecom.Core.Interfaces;
 using Ecom.Core.Services;
+using Ecom.Core.Sharing;
 using Ecom.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -10,6 +11,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace Ecom.Infrastructure.Repositries
 {
@@ -25,6 +27,57 @@ namespace Ecom.Infrastructure.Repositries
             this.mapper = mapper;
             this.imageManagementSerives = imageManagementSerives;
         }
+
+
+
+
+        public async Task<IEnumerable<ProductDto>> GetAllAsync(ProductParams parameters)
+        {
+            var quary = context.Products
+                .Include(x=>x.Category)
+                .Include(x=>x.Photos)
+                .AsNoTracking();
+
+            // Filter By Search 
+
+            if (!string.IsNullOrEmpty(parameters.Search))
+            {
+                var searchWord = parameters.Search.Split(' ');
+
+                quary = quary.Where(x => searchWord.All(word =>
+
+                 x.Name.ToLower().Contains(word)
+                 ||
+                 x.Description.ToLower().Contains(word) 
+
+                ));
+            }
+
+
+
+
+
+            //Filter By CategoryId
+
+            if (parameters.CategoryId.HasValue)
+               quary = quary.Where(m=>m.CategoryId  == parameters.CategoryId);
+            
+            if (!string.IsNullOrEmpty(parameters.Sort))
+            {
+                quary = parameters.Sort switch
+                {
+                    "priceAce" => quary.OrderBy(x => x.NewPrice),
+                    "priceDce" => quary.OrderByDescending(x => x.NewPrice),
+                    _ => quary.OrderBy(x => x.Name),
+                };
+            }
+
+            quary = quary.Skip(parameters.pageSize * (parameters.pageNumber - 1)).Take(parameters.pageSize);
+
+            var result = mapper.Map<List<ProductDto>>(quary);
+            return result;
+        }
+
 
         public async Task<bool> AddAsync(AddProductDto productDto)
         {
@@ -112,13 +165,7 @@ namespace Ecom.Infrastructure.Repositries
 
         }
 
-
-
-
-
-
-
-
+       
     }
 }
 

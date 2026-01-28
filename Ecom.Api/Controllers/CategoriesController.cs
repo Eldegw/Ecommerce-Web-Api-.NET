@@ -11,9 +11,9 @@ using Microsoft.VisualBasic;
 namespace Ecom.Api.Controllers
 {
 
-    public class CategoryController : BaseController
+    public class CategoriesController : BaseController
     {
-        public CategoryController(IUnitOfWork work, IMapper mapper) : base(work, mapper)
+        public CategoriesController(IUnitOfWork work, IMapper mapper) : base(work, mapper)
         {
         }
 
