@@ -10,7 +10,7 @@ namespace Ecom.Infrastructure.Data
         {
             var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
 
-            // استخدم الـ connection string مباشرة
+          
             optionsBuilder.UseSqlServer(
                 "Data Source=.;Initial Catalog=Ecom;Integrated Security=True;Encrypt=True;Trust Server Certificate=True"
             );
